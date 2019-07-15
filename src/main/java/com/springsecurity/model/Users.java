@@ -1,22 +1,54 @@
 package com.springsecurity.model;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@Entity
+@Table(name="users")
 public class Users {
-
-	private int id;
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "users_id")
+	private int users_id;
+	@Column(name = "username")
 	private String username;
+	@Column(name = "password")
 	private String password;
+	@Column(name = "enabled")
 	private int enabled;
-	private String role;
+	@Transient
 	private String token;
-
+	
+    @OneToOne(cascade = {
+			CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @JoinTable(
+    		name="user_roles",
+			joinColumns=@JoinColumn(name="users_id"),
+			inverseJoinColumns=@JoinColumn(name="roles_id")
+    )
+    @JsonIgnoreProperties("users")
+	private Roles roles;
 	
 	public Users() {}
 
-	public Users(String username, String password, int enabled) {
-		this.username = username;
-		this.password = password;
-		this.enabled = enabled;
-	}
+
 
 	/**
 	 * @return the username
@@ -60,19 +92,7 @@ public class Users {
 		this.enabled = enabled;
 	}
 	
-	/**
-	 * @return the role
-	 */
-	public String getRole() {
-		return role;
-	}
 
-	/**
-	 * @param role the role to set
-	 */
-	public void setRole(String role) {
-		this.role = role;
-	}
 
 	/**
 	 * @return the token
@@ -87,39 +107,69 @@ public class Users {
 	public void setToken(String token) {
 		this.token = token;
 	}
+	
+	
 
-	public Users(String username, String password, int enabled, String role) {
-		this.username = username;
-		this.password = password;
-		this.enabled = enabled;
-		this.role = role;
-	}
- 
-	public Users(int id, String username, String password, int enabled, String role, String token) {
+	public Users(String username, String password, int enabled, String token, Roles role) {
 		super();
-		this.id = id;
 		this.username = username;
 		this.password = password;
 		this.enabled = enabled;
-		this.role = role;
 		this.token = token;
+		this.roles = role;
 	}
+
+	
+	public Users(String username, String password, int enabled, Roles roles) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.enabled = enabled;
+		this.roles = roles;
+	}
+
+
 
 	/**
 	 * @return the id
 	 */
-	public int getId() {
-		return id;
+	public int getUsers_id() {
+		return users_id;
 	}
 
+	
+
 	/**
-	 * @param id the id to set
+	 * @return the loggedRole
 	 */
-	public void setId(int id) {
-		this.id = id;
+	public String getLoggedRole(Roles r) {
+		String loggedRole = null;
+		if(r != null){
+			loggedRole = r.getRole();
+		}
+		return loggedRole;
+	}
+
+
+
+	/**
+	 * @return the roles
+	 */
+	public Roles getRoles() {
+		return roles;
+	}
+
+
+
+	/**
+	 * @param roles the roles to set
+	 */
+	public void setRoles(Roles roles) {
+		this.roles = roles;
 	}
 	
 	
+
 	
 	
 }

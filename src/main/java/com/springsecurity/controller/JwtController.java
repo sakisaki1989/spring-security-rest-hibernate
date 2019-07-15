@@ -26,6 +26,7 @@ import com.springsecurity.model.JwtURLResponse;
 import com.springsecurity.model.JwtUserResponse;
 import com.springsecurity.model.Users;
 import com.springsecurity.security.JwtTokenUtil;
+import com.springsecurity.service.UserService;
 
 
 @RestController
@@ -37,10 +38,10 @@ public class JwtController {
 
 	@Autowired
 	private JwtTokenUtil jwtTokenUtil;
-
+	
 	@Autowired
-	@Qualifier("jwtUserDetailsService")
-	private UserDetailsService jwtInMemoryUserDetailsService;
+	@Qualifier("userService")
+	private UserService userService;
 	
 	@Autowired
 	private UserDAO userDAO;
@@ -49,10 +50,8 @@ public class JwtController {
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
 			throws Exception {
 		authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
-		Users user = userDAO.getUserInfo(authenticationRequest.getUsername());
-		final UserDetails userDetails = jwtInMemoryUserDetailsService
-				.loadUserByUsername(authenticationRequest.getUsername());
-		final String token = jwtTokenUtil.generateToken(userDetails);
+		Users user = userService.loadUser(authenticationRequest.getUsername());
+		final String token = jwtTokenUtil.generateToken(user);
 		user.setToken(token);
 		
 		return ResponseEntity.ok(new JwtUserResponse(user));
@@ -70,6 +69,7 @@ public class JwtController {
 			throw new Exception("INVALID_CREDENTIALS", e);
 		}
 	}
+	
 	@RequestMapping(value = "/basic_embed", method = RequestMethod.GET)
 	public ResponseEntity<?> goBasicEmbed(JwtRequest authenticationRequest) throws Exception {
 		String basic_embedurl = "http://public.tableau.com/views/RegionalSampleWorkbook/Storms";

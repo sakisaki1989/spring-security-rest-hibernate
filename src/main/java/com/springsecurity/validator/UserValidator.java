@@ -1,6 +1,8 @@
 package com.springsecurity.validator;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -13,7 +15,8 @@ import com.springsecurity.service.JwtUserDetailsService;
 public class UserValidator implements Validator {
 	
 	@Autowired
-	JwtUserDetailsService userService;
+	@Qualifier("userService")
+	UserDetailsService userService;
 	
 	@Override
 	public boolean supports(Class<?> aClass) {
